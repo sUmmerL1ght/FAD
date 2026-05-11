@@ -22,8 +22,6 @@ class LSTMPolicy(nn.Module):
         self.apply(init_weights)
     
     def forward(self, x, condition):
-        # x shape: [batch_size, seq_len, state_dim]
-        # condition shape: [batch_size, seq_len, cond_dim]
         embed_cond = self.cond_emb(condition)
         x = torch.cat([x, embed_cond], dim=-1)
         x, _ = self.lstm(x)
@@ -50,8 +48,6 @@ class RNNPolicy(nn.Module):
         self.apply(init_weights)
     
     def forward(self, x, condition):
-        # x shape: [batch_size, seq_len, state_dim]
-        # condition shape: [batch_size, seq_len, cond_dim]
         embed_cond = self.cond_emb(condition)
         x = torch.cat([x, embed_cond], dim=-1)
         x, _ = self.rnn(x)
@@ -78,8 +74,6 @@ class GRUPolicy(nn.Module):
         self.apply(init_weights)
     
     def forward(self, x, condition):
-        # x shape: [batch_size, seq_len, state_dim]
-        # condition shape: [batch_size, seq_len, cond_dim]
         embed_cond = self.cond_emb(condition)
         x = torch.cat([x, embed_cond], dim=-1)
         x, _ = self.gru(x)
@@ -93,9 +87,6 @@ class GRUPolicy(nn.Module):
 
 
 
-#=================================================#
-#======================Critic=====================#
-#=================================================#
 
 class Critic(nn.Module):
     def __init__(self, state_dim, action_dim, hidden_dim=128, length=16):
@@ -118,9 +109,6 @@ class Critic(nn.Module):
         return self.q1_model(x)
 
 
-#=================================================#
-#===================Transformer===================#
-#=================================================#
 
 import torch
 import torch.nn as nn
@@ -159,29 +147,17 @@ class MultiHeadAttention(nn.Module):
         self.fc_out = nn.Linear(d_model, d_model)
 
     def forward(self, query, key, value, mask=None):
-        # query shape: [batch_size, query_len, d_model]
-        # key shape: [batch_size, key_len, d_model]
-        # value shape: [batch_size, value_len, d_model]
 
         batch_size = query.size(0)
-
-        # project inputs to multi-heads
-        Q = self.q_linear(query).view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2) # [batch_size, n_heads, query_len, head_dim]
-        K = self.k_linear(key).view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2) # [batch_size, n_heads, key_len, head_dim]
-        V = self.v_linear(value).view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2) # [batch_size, n_heads, value_len, head_dim]
-
-        # compute scores
-        scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dim) # [batch_size, n_heads, query_len, key_len]
-
-        # apply mask
+        Q = self.q_linear(query).view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
+        K = self.k_linear(key).view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
+        V = self.v_linear(value).view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dim)
         if mask is not None:
             scores = scores.masked_fill(mask == True, -1e9)
-        # apply softmax
-        attention_weights = F.softmax(scores, dim=-1) # [batch_size, n_heads, query_len, key_len]
-        out = torch.matmul(attention_weights, V) # [batch_size, n_heads, query_len, head_dim]
-
-        # concatenate heads and apply final linear layer
-        out = out.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model) # [batch_size, query_len, d_model]
+        attention_weights = F.softmax(scores, dim=-1)
+        out = torch.matmul(attention_weights, V)
+        out = out.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
         out = self.fc_out(out)
 
         return out
@@ -208,14 +184,9 @@ class EncoderLayer(nn.Module):
         self.dropout2 = nn.Dropout(dropout_rate)
 
     def forward(self, x, mask=None):
-        # x shape: [batch_size, seq_len, d_model]
-
-        # self-attention
         attn_output = self.self_attn(x, x, x, mask)
         attn_output = self.dropout1(attn_output)
         x = self.norm1(x + attn_output)
-
-        # feed forward
         ff_output = self.feed_forward(x)
         ff_output = self.dropout2(ff_output)
         x = self.norm2(x + ff_output)
@@ -237,19 +208,12 @@ class DecoderLayer(nn.Module):
         self.dropout3 = nn.Dropout(dropout_rate)
     
     def forward(self, x, encoder_output, src_mask=None, tgt_mask=None):
-        # x shape: [batch_size, seq_len, d_model]
-
-        # self-attention
         attn_output = self.self_attn(x, x, x, tgt_mask)
         attn_output = self.dropout1(attn_output)
         x = self.norm1(x + attn_output)
-
-        # encoder-decoder attention
         attn_output = self.encoder_attn(x, encoder_output, encoder_output, src_mask)
         attn_output = self.dropout2(attn_output)
         x = self.norm2(x + attn_output)
-
-        # feed forward
         ff_output = self.feed_forward(x)
         ff_output = self.dropout3(ff_output)
         x = self.norm3(x + ff_output)
@@ -263,7 +227,6 @@ class Encoder(nn.Module):
         self.norm = nn.LayerNorm(d_model)
 
     def forward(self, x, mask=None):
-        # x shape: [batch_size, seq_len, d_model]
 
         for layer in self.layers:
             x = layer(x, mask)
@@ -278,7 +241,6 @@ class Decoder(nn.Module):
             self.norm = nn.LayerNorm(d_model)
 
         def forward(self, x, encoder_output, src_mask=None, tgt_mask=None):
-            # x shape: [batch_size, seq_len, d_model]
 
             for layer in self.layers:
                 x = layer(x, encoder_output, src_mask, tgt_mask)
@@ -303,7 +265,6 @@ class Transformer(nn.Module):
         
         self.pos_encoding = PositionalEncoding(d_model*2)
         self.encoder = Encoder(d_model*2, n_heads, d_ff, n_layers, dropout_rate)
-        # self.decoder = Decoder(d_model, n_heads, d_ff, n_layers, dropout_rate)
         self.state_out = nn.Sequential(nn.Linear(d_model*2, d_model),
                                     nn.ReLU(),
                                     nn.Linear(d_model, input_dim))
@@ -314,9 +275,7 @@ class Transformer(nn.Module):
 
 
     def forward(self, x, rtg, mask=None):
-        # x shape: [batch_size, seq_len, input_dim]
-        # return shape: [batch_size, seq_len, input_dim]
-        state_emb = self.embedding(x) # [batch_size, seq_len, d_model]
+        state_emb = self.embedding(x)
         rtg_emb = self.reward_embedding(rtg)
         x = torch.cat([state_emb, rtg_emb], dim=-1)
         x = self.pos_encoding(x)
@@ -345,9 +304,7 @@ class UncondTransformer(nn.Module):
 
 
     def forward(self, x, mask=None):
-        # x shape: [batch_size, seq_len, input_dim]
-        # return shape: [batch_size, seq_len, input_dim]
-        state_emb = self.embedding(x) # [batch_size, seq_len, d_model]
+        state_emb = self.embedding(x)
 
         x = self.pos_encoding(x)
         x = self.embed_ln(x)
@@ -366,80 +323,32 @@ class UncondTransformer(nn.Module):
 
 
 class ValueTransformer(nn.Module):
-    """
-    一个基于Transformer的价值函数模型。
-    输入: 状态序列和动作序列
-    输出: 每个时间步的价值
-    """
-
     def __init__(self, state_dim, action_dim, d_model, n_heads, d_ff, n_layers, dropout_rate=0.1):
         super(ValueTransformer, self).__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.d_model = d_model
 
-        # 1. 嵌入层：将状态和动作映射到高维空间
         self.state_embedding = nn.Linear(state_dim, d_model)
         self.action_embedding = nn.Linear(action_dim, d_model)
-
-        # 2. 位置编码
         self.pos_encoding = PositionalEncoding(d_model)
-
-        # 3. Transformer编码器层
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=d_model,
-            nhead=n_heads,
-            dim_feedforward=d_ff,
-            dropout=dropout_rate,
-            activation='relu',
-            batch_first=True  # 重要: 输入形状为 [batch, seq, feature]
+            d_model=d_model, nhead=n_heads, dim_feedforward=d_ff,
+            dropout=dropout_rate, activation='relu', batch_first=True
         )
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
-
-        # 4. 输出层（价值头）: 将Transformer的输出映射为一个标量价值
         self.value_head = nn.Linear(d_model, 1)
-
-        # 5. 其他层
         self.embed_ln = nn.LayerNorm(d_model)
         self.dropout = nn.Dropout(dropout_rate)
 
     def _generate_causal_mask(self, sz):
-        """
-        生成因果掩码，防止模型在预测时看到未来的信息。
-        """
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
         mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
         return mask
 
     def forward(self, states, actions):
-        """
-        前向传播。
-
-        Args:
-            states (torch.Tensor): 状态序列, 形状 [batch_size, seq_len, state_dim]
-            actions (torch.Tensor): 动作序列, 形状 [batch_size, seq_len, action_dim]
-
-        Returns:
-            torch.Tensor: 价值序列, 形状 [batch_size, seq_len, 1]
-        """
-        batch_size, seq_len, _ = states.shape
-
-        # 将状态和动作嵌入并相加，形成每个时间步的token
-        state_emb = self.state_embedding(states)
-        action_emb = self.action_embedding(actions)
-        x = state_emb + action_emb  # [batch_size, seq_len, d_model]
-
-        # 添加位置编码
-        x = self.pos_encoding(x)
-        x = self.dropout(self.embed_ln(x))
-
-        # 生成因果掩码
+        _, seq_len, _ = states.shape
+        x = self.state_embedding(states) + self.action_embedding(actions)
+        x = self.dropout(self.embed_ln(self.pos_encoding(x)))
         causal_mask = self._generate_causal_mask(seq_len).to(states.device)
-
-        # 通过Transformer编码器
-        transformer_output = self.transformer_encoder(x, mask=causal_mask)
-
-        # 通过价值头得到最终输出
-        values = self.value_head(transformer_output)  # [batch_size, seq_len, 1]
-
-        return values
+        return self.value_head(self.transformer_encoder(x, mask=causal_mask))

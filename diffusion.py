@@ -121,23 +121,16 @@ class Diffusion(nn.Module):
         model_mean, posterior_variance, posterior_log_variance = self.q_posterior(x_start=x_recon, x_t=x, t=t)
         return model_mean, posterior_variance, posterior_log_variance
 
-    # @torch.no_grad()
     def p_sample(self, x, t, c):
         b, l, *_, device = *x.shape, x.device
         model_mean, _, model_log_variance = self.p_mean_variance(x=x, t=t, c=c)
         noise = torch.randn_like(x)
-        # no noise when t == 0
         nonzero_mask = (1 - (t == 0).float()).reshape(b, *((1,) * (len(x.shape) - 1)))
-        # x_{t-1} = mean + std * noise
-        # where std = sqrt(Var[x_t] * (1 - alpha_{t-1}) / (1 - alpha_t))
         return model_mean + nonzero_mask * (0.5 * model_log_variance).exp() * noise
 
-    # @torch.no_grad()
     def p_sample_loop(self, x, cond, reward, shape, verbose=False, return_diffusion=False):
         device = self.betas.device
-
         batch_size = shape[0]
-        # x = torch.randn(shape, device=device)
         x = apply_condition(x, cond)
         if return_diffusion: diffusion = [x]
         progress = Progress(self.n_timesteps) if verbose else Silent()
@@ -158,7 +151,6 @@ class Diffusion(nn.Module):
         else:
             return x
 
-    # @torch.no_grad()
     def sample(self, x, cond, reward, *args, **kwargs):
         batch_size = x.shape[0]
         shape = (batch_size, self.horizon, self.state_dim)
@@ -178,11 +170,6 @@ class Diffusion(nn.Module):
             assert self.predict_epsilon, "clip_denoised=True requires predict_epsilon=True"
         
         ddim_timestep_seq = ddim_timestep_seq + 1
-        # clip to max_steps
-        # ddim_timestep_seq = np.clip(ddim_timestep_seq, 0, self.max_steps-1)
-        
-        # previous sequence
-        # ddim_timestep_prev_seq = ddim_timestep_seq[:-1]
         ddim_timestep_prev_seq = np.append(np.array([0]), ddim_timestep_seq)
 
         batch_size = x.shape[0]
@@ -362,23 +349,16 @@ class Uncond_Diffusion(nn.Module):
         model_mean, posterior_variance, posterior_log_variance = self.q_posterior(x_start=x_recon, x_t=x, t=t)
         return model_mean, posterior_variance, posterior_log_variance
 
-    # @torch.no_grad()
     def p_sample(self, x, t):
         b, l, *_, device = *x.shape, x.device
         model_mean, _, model_log_variance = self.p_mean_variance(x=x, t=t)
         noise = torch.randn_like(x)
-        # no noise when t == 0
         nonzero_mask = (1 - (t == 0).float()).reshape(b, *((1,) * (len(x.shape) - 1)))
-        # x_{t-1} = mean + std * noise
-        # where std = sqrt(Var[x_t] * (1 - alpha_{t-1}) / (1 - alpha_t))
         return model_mean + nonzero_mask * (0.5 * model_log_variance).exp() * noise
 
-    # @torch.no_grad()
-    def p_sample_loop(self, x,  shape, t=None, verbose=False, return_diffusion=False):
+    def p_sample_loop(self, x, shape, t=None, verbose=False, return_diffusion=False):
         device = self.betas.device
-
         batch_size = shape[0]
-        # x = torch.randn(shape, device=device)
         if t is None:
             t = self.n_timesteps
         if return_diffusion: diffusion = [x]
@@ -400,7 +380,6 @@ class Uncond_Diffusion(nn.Module):
         else:
             return x
 
-    # @torch.no_grad()
     def sample(self, x, *args, **kwargs):
         batch_size = x.shape[0]
         shape = (batch_size, self.horizon, self.state_dim)
@@ -425,11 +404,6 @@ class Uncond_Diffusion(nn.Module):
             assert self.predict_epsilon, "clip_denoised=True requires predict_epsilon=True"
         
         ddim_timestep_seq = ddim_timestep_seq + 1
-        # clip to max_steps
-        # ddim_timestep_seq = np.clip(ddim_timestep_seq, 0, self.max_steps-1)
-        
-        # previous sequence
-        # ddim_timestep_prev_seq = ddim_timestep_seq[:-1]
         ddim_timestep_prev_seq = np.append(np.array([0]), ddim_timestep_seq)
 
         batch_size = x.shape[0]

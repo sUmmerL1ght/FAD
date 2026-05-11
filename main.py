@@ -25,37 +25,33 @@ def set_seed(seed):
 
 
 hyperparameters = {
-    'halfcheetah-medium-expert-v2': {'lr': 2e-4, 'horizon': 8, 'n_timesteps': 2, 'scalar': 1.1, 'rtg': 12000.0}, # 8
-    'halfcheetah-medium-replay-v2': {'lr': 2e-4, 'horizon': 8, 'n_timesteps': 2, 'scalar': 1.1, 'rtg': 5300.0},
-    'halfcheetah-medium-v2': {'lr': 2e-4, 'horizon': 8, 'n_timesteps': 2, 'scalar': 1.1, 'rtg': 5300.0}, # 8
-    'hopper-medium-expert-v2': {'lr': 2e-4, 'horizon': 16, 'n_timesteps': 2, 'scalar': 1.2, 'rtg': 3600.0}, # 16
-    'hopper-medium-replay-v2': {'lr': 2e-4, 'horizon': 16, 'n_timesteps': 2, 'scalar': 1.2, 'rtg': 3100.0},
-    'hopper-medium-v2': {'lr': 2e-4, 'horizon': 16, 'n_timesteps': 2, 'scalar': 1.2, 'rtg': 3100.0},  # n_step=5
-    'walker2d-medium-expert-v2': {'lr': 2e-4, 'horizon': 32, 'n_timesteps': 2, 'scalar': 1.1, 'rtg': 5100.0},
-    'walker2d-medium-replay-v2': {'lr': 2e-4, 'horizon': 32, 'n_timesteps': 2, 'scalar': 1.1, 'rtg': 4200.0},
-    'walker2d-medium-v2': {'lr': 2e-4, 'horizon': 32, 'n_timesteps': 2, 'scalar': 1.1, 'rtg': 4200.0},
-    'pen-human-v1': {'lr': 1e-4, 'horizon': 16, 'n_timesteps': 2, 'scalar': 1.3, 'rtg': 6000.0},
-    'pen-cloned-v1': {'lr': 1e-4, 'horizon': 16, 'n_timesteps': 2, 'scalar': 1.3, 'rtg': 6000.0},
-    'pen-expert-v1': {'lr': 1e-4, 'horizon': 16, 'n_timesteps': 2, 'scalar': 1.3, 'rtg': 6000.0},
-    'kitchen-partial-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 500.0},
-    'kitchen-mixed-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 400.0},
-    'door-human-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 1500.0},
-    'door-cloned-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 1500.0},
-    'door-expert-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 1500.0},
-    'hammer-human-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 17000.0},
-    'hammer-cloned-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 17000.0},
-    'hammer-expert-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 17000.0},
-    'relocate-human-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 4000.0},
-    'relocate-cloned-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 4000.0},
-    'relocate-expert-v0': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 4000.0},
-    'maze2d-umaze-v1': {'lr': 1e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 200.0},
-    'maze2d-medium-v1': {'lr': 1e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 300.0},
-    'maze2d-large-v1': {'lr': 1e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 400.0},
-    'antmaze-umaze-v2': {'lr': 1e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0},
-    'antmaze-large-play-v2': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0},
-    'antmaze-large-diverse-v2': {'lr': 1e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0},
-    'FetchPush-v1': {'lr': 1e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0,
-                     'load_path': '/data3/hrenming/Trajectory_Diffuser/data/hard_tasks_2e5/expert_small/FetchPush'},
+    # Gym-MuJoCo locomotion
+    'halfcheetah-medium-expert-v2': {'lr': 3e-4, 'horizon': 8,  'n_timesteps': 5, 'scalar': 1.1, 'rtg': 12000.0, 'scale': 10000},
+    'halfcheetah-medium-replay-v2': {'lr': 3e-4, 'horizon': 8,  'n_timesteps': 5, 'scalar': 1.1, 'rtg': 5300.0,  'scale': 10000},
+    'halfcheetah-medium-v2':        {'lr': 3e-4, 'horizon': 8,  'n_timesteps': 5, 'scalar': 1.1, 'rtg': 5300.0,  'scale': 10000},
+    'hopper-medium-expert-v2':      {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 3600.0,  'scale': 1000},
+    'hopper-medium-replay-v2':      {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 3100.0,  'scale': 1000},
+    'hopper-medium-v2':             {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 3100.0,  'scale': 1000},
+    'walker2d-medium-expert-v2':    {'lr': 3e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 5100.0,  'scale': 1000},
+    'walker2d-medium-replay-v2':    {'lr': 3e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 4200.0,  'scale': 1000},
+    'walker2d-medium-v2':           {'lr': 3e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 4200.0,  'scale': 1000},
+    # Maze2D
+    'maze2d-umaze-v1':  {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 200.0, 'scale': 500},
+    'maze2d-medium-v1': {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 300.0, 'scale': 500},
+    'maze2d-large-v1':  {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 400.0, 'scale': 500},
+    # AntMaze
+    'antmaze-umaze-v2':        {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0, 'scale': 1},
+    'antmaze-medium-play-v2':  {'lr': 3e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0, 'scale': 1},
+    'antmaze-medium-diverse-v2': {'lr': 3e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0, 'scale': 1},
+    'antmaze-large-play-v2':   {'lr': 3e-4, 'horizon': 64, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0, 'scale': 1},
+    'antmaze-large-diverse-v2': {'lr': 3e-4, 'horizon': 64, 'n_timesteps': 5, 'scalar': 1.1, 'rtg': 1.0, 'scale': 1},
+    # Adroit (Pen)
+    'pen-human-v1':  {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.3, 'rtg': 6000.0, 'scale': 1000},
+    'pen-cloned-v1': {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.3, 'rtg': 6000.0, 'scale': 1000},
+    'pen-expert-v1': {'lr': 3e-4, 'horizon': 16, 'n_timesteps': 5, 'scalar': 1.3, 'rtg': 6000.0, 'scale': 1000},
+    # Kitchen
+    'kitchen-partial-v0': {'lr': 3e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 500.0, 'scale': 100},
+    'kitchen-mixed-v0':   {'lr': 3e-4, 'horizon': 32, 'n_timesteps': 5, 'scalar': 1.2, 'rtg': 400.0, 'scale': 100},
 }
 
 
@@ -75,7 +71,6 @@ def parse_args():
 
 
 def main():
-    # set_seed(seed)
     args = parse_args()
     gamma = args.gamma
     schedule = args.schedule
@@ -92,30 +87,14 @@ def main():
     lr = hyperparameters[env_name]['lr']
     w = hyperparameters[env_name]['scalar']
     rtg = hyperparameters[env_name]['rtg']
-    try:
-        load_path = hyperparameters[env_name]['load_path']
-    except:
-        load_path = None
-
     env = gym.make(env_name)
     device = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu")
 
-    if 'Fetch' in env_name:
-        observation_dim = env.observation_space['observation'].shape[0]
-    else:
-        observation_dim = env.observation_space.shape[0]
+    observation_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
     action_scale = env.action_space
 
-    scale = 1000
-    if 'maze2d' in args.env_name:
-        scale = 500
-    elif 'halfcheetah' in args.env_name:
-        scale = 10000
-    elif 'antmaze' in args.env_name:
-        scale = 1
-    elif 'kitchen' in args.env_name:
-        scale = 100
+    scale = hyperparameters[env_name]['scale']
 
     policy = Policy_fm_doublecritic(args.env_name,
                     observation_dim,
@@ -134,16 +113,13 @@ def main():
     dataset = SequenceDatasetV2(env_name,
                                 horizon=horizon,
                                 returns_scale=scale,
-                                # discount=0.99,
-                                termination_penalty=None,
-                                load_path=load_path)
+                                termination_penalty=None)
     normalizer: DatasetNormalizer = dataset.normalizer
     step_start_ema = 10000
     cnt = 0
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=16)
     totle_iteration = 1_000_000
     if os.path.exists(f"./runs/{env_name}_{model}_{seed}"):
-        # remove all files in the folder
         shutil.rmtree(f"./runs/{env_name}_{model}_{seed}")
 
     writer = SummaryWriter(f"./runs/{env_name}_{model}_{seed}")
@@ -156,7 +132,6 @@ def main():
 
         record(writer, "loss", loss, cnt)
         if cnt % eval_freq == 0:
-        # if cnt % 5 == 0:
             reward_td = policy.evaluate(env, 5, normalizer, rtg, scale, True)
             record(writer, "reward_td", reward_td, cnt)
             formate_print(loss, reward_td, cnt)
